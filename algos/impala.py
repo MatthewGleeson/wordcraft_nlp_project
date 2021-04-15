@@ -23,6 +23,8 @@ from core import vtrace
 from utils import seed as utils_seed
 from models import RandomAgent, SelfAttentionACNet, SimpleACNet
 from graph.kbcr import ComplEx
+import wandb
+
 
 
 logging.basicConfig(
@@ -332,6 +334,9 @@ def learn(
             "baseline_loss": baseline_loss.item(),
             "entropy_loss": entropy_loss.item(),
         }
+        #TODO: trying to add WANDB here
+        
+        wandb.log(stats)
 
         optimizer.zero_grad()
         total_loss.backward()
@@ -374,6 +379,10 @@ def create_buffers(flags, obs_space, num_actions) -> Buffers:
 
 
 def train(flags):  # pylint: disable=too-many-branches, too-many-statements
+
+    wandb.init(settings=wandb.Settings(start_method="fork"), project="nlptest", entity="gleesonm", config=vars(flags))
+
+
     if flags.xpid is None:
         flags.xpid = "torchbeast-%s" % time.strftime("%Y%m%d-%H%M%S")
     plogger = file_writer.FileWriter(
@@ -486,7 +495,11 @@ def train(flags):  # pylint: disable=too-many-branches, too-many-statements
         "baseline_loss",
         "entropy_loss",
     ]
+
     logger.info("# Step\t%s", "\t".join(stat_keys))
+
+
+    
 
     step, stats = 0, {}
 
@@ -571,6 +584,9 @@ def train(flags):  # pylint: disable=too-many-branches, too-many-statements
                 mean_return,
                 pprint.pformat(stats),
             )
+
+            #TODO: think we should insert here
+
     except KeyboardInterrupt:
         return  # Try joining actors then quit.
     else:
