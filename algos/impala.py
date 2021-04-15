@@ -155,6 +155,11 @@ def test(
                     'step': cumulative_steps_now,
                     'mean_episode_return': mean_episode_return
                 }   
+                wandb_log = {}
+                wandb_log['test_mean_episode_return'] = to_log['mean_episode_return']
+                wandb_log['test_step'] = to_log['step']
+                wandb.log(wandb_log)
+                
                 if split == 'test':
                     logger.log_test_test(to_log)
                 else:
