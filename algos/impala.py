@@ -385,7 +385,7 @@ def create_buffers(flags, obs_space, num_actions) -> Buffers:
 
 def train(flags):  # pylint: disable=too-many-branches, too-many-statements
 
-    wandb.init(settings=wandb.Settings(start_method="fork"), project="nlptest", entity="gleesonm", config=vars(flags))
+    wandb.init(settings=wandb.Settings(start_method="fork"), project="wordcraft", entity="nlp_group", config=vars(flags))
 
 
     if flags.xpid is None:
