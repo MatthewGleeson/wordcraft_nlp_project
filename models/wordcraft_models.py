@@ -32,8 +32,8 @@ class RelationType(IntEnum):
 
 class SelfAttentionACNet(DeviceAwareModule):
 	def __init__(
-		self, 
-		observation_space, action_space, 
+		self,
+		observation_space, action_space,
 		arch='selfattn',
 		key_size=128,
 		value_size=128,
@@ -114,7 +114,7 @@ class SelfAttentionACNet(DeviceAwareModule):
 
 			o = obj_idx.repeat(1, num_s).flatten(0, 1)
 			o[o < 0] = 0
-			o_mask = obj_idx.flatten() >= 0 # T*B x 1 batch indices that need to be zeroed 
+			o_mask = obj_idx.flatten() >= 0 # T*B x 1 batch indices that need to be zeroed
 
 			r = torch.zeros_like(o, dtype=int).to(self.device)
 			r[:] = rel_enum
@@ -185,7 +185,7 @@ class SelfAttentionACNet(DeviceAwareModule):
 				policy_logits = policy_logits*0
 				policy_logits = policy_logits + goal_scores + selection_scores
 			else:
-				mixture_weights = F.softmax(self.fc_mixture_weights(values), dim=1).unsqueeze(-1)		
+				mixture_weights = F.softmax(self.fc_mixture_weights(values), dim=1).unsqueeze(-1)
 				policy_logits = mixture_weights[:,0]*policy_logits + mixture_weights[:,1]*goal_scores + mixture_weights[:,2]*selection_scores
 
 		if greedy:
@@ -198,7 +198,7 @@ class SelfAttentionACNet(DeviceAwareModule):
 		# 	print('selected action', action, self.rb.entities[table_index[0][action]])
 
 		# values = torch.bmm(self_attn, self.v(table_features)).squeeze(1) # T*B x 1 x d_value
-		baseline = self.baseline(values) 
+		baseline = self.baseline(values)
 
 		policy_logits = policy_logits.view(T, B, self.num_actions)
 		baseline = baseline.view(T, B)
@@ -209,7 +209,7 @@ class SelfAttentionACNet(DeviceAwareModule):
 
 class SimpleACNet(DeviceAwareModule):
 	def __init__(
-		self, 
+		self,
 		observation_space, action_space, arch, hidden_size=300):
 		super().__init__()
 
@@ -264,7 +264,7 @@ class SimpleACNet(DeviceAwareModule):
 			action = torch.argmax(policy_logits, dim=-1)
 		else:
 			action = torch.multinomial(F.softmax(policy_logits, dim=-1), num_samples=1)
-		
+
 		policy_logits = policy_logits.view(T, B, self.num_actions)
 		baseline = baseline.view(T, B)
 		action = action.view(T, B)

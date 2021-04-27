@@ -12,8 +12,8 @@ from torch.utils.data import Dataset, DataLoader
 from utils import seed as utils_seed
 from wordcraft.recipe_book import RecipeBook
 from utils.word2feature import FeatureMap
-from .kbcr import ComplEx
-from .kbcr.regularizers import N2, N3
+from graph.kbcr.models.complex import ComplEx
+from graph.kbcr.regularizers import N2, N3
 from graph.kbcr.evaluation import evaluate
 
 
@@ -77,7 +77,7 @@ class RelationsDataset(Dataset):
 	def __init__(self, relations, feature_type='integer', recipe_book=None):
 		if feature_type == 'glove':
 			assert recipe_book is not None, 'Generating GloVe features requires a recipe book.'
-		
+
 		self.relations = relations
 
 		self.feature_type = feature_type
@@ -98,7 +98,7 @@ class RelationsDataset(Dataset):
 
 			# precompute index2features here
 			self.index2features = torch.tensor(
-				[self.feature_map.feature(e) for e in self.recipe_book.entities], 
+				[self.feature_map.feature(e) for e in self.recipe_book.entities],
 				dtype=torch.float).to(device)
 
 			self.subjects = torch.zeros((num_relations, self.feature_size), dtype=torch.float).to(device)
@@ -159,7 +159,7 @@ def get_cmd_args():
 						help="How entities are represented.")
 
 	# KBC model params
-	parser.add_argument("--embedding_size", type=int, default=300, 
+	parser.add_argument("--embedding_size", type=int, default=300,
 						help="Size of KBC model embeddings.")
 
 	# Training params
@@ -191,9 +191,9 @@ def main():
 
 	# Create recipe split + save split instance
 	recipe_book = RecipeBook(
-		data_path=args.data_path, 
-		max_depth=args.max_depth, 
-		split=args.split, 
+		data_path=args.data_path,
+		max_depth=args.max_depth,
+		split=args.split,
 		train_ratio=args.train_ratio)
 
 	save_dir = os.path.expandvars(
@@ -203,7 +203,7 @@ def main():
 	recipe_save_path = os.path.join(save_dir, 'recipe_book.bin')
 
 	recipe_book.save(recipe_save_path)
-	
+
 	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 	# Set up training data
@@ -222,8 +222,8 @@ def main():
 	num_predicates = dataset.num_predicates
 
 	model = ComplEx(
-		num_entities=num_entities, 
-		num_predicates=num_predicates, 
+		num_entities=num_entities,
+		num_predicates=num_predicates,
 		embedding_size=args.embedding_size,
 		feature_type=args.feature_type,
 		feature_size=dataset.feature_size,
@@ -286,11 +286,11 @@ def main():
 
 		if validate_interval is not None and epoch % validate_interval == 0:
 			metrics = evaluate(
-						entity_embeddings=model.entity_embeddings, 
+						entity_embeddings=model.entity_embeddings,
 						predicate_embeddings=model.predicate_embeddings,
 						all_triples=all_relations.data.numpy(),
-						test_triples=test_relations.data.numpy(), 
-						model=model, 
+						test_triples=test_relations.data.numpy(),
+						model=model,
 						batch_size=eval_batch_size,
 						index2features=dataset.index2features if args.feature_type == 'glove' else None,
 						device=device)

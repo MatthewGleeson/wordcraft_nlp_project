@@ -25,8 +25,6 @@ from models import RandomAgent, SelfAttentionACNet, SimpleACNet
 from graph.kbcr import ComplEx
 import wandb
 
-
-
 logging.basicConfig(
     format=(
         "[%(levelname)s:%(process)d %(module)s:%(lineno)d %(asctime)s] " "%(message)s"
@@ -35,7 +33,6 @@ logging.basicConfig(
 )
 
 Buffers = typing.Dict[str, typing.List[torch.Tensor]]
-
 
 def model_for_env(flags, env, kg_model=None):
     if flags.env.lower().startswith('wordcraft'):
@@ -154,12 +151,12 @@ def test(
                 to_log = {
                     'step': cumulative_steps_now,
                     'mean_episode_return': mean_episode_return
-                }   
+                }
                 wandb_log = {}
                 wandb_log['test_mean_episode_return'] = to_log['mean_episode_return']
                 wandb_log['test_step'] = to_log['step']
                 wandb.log(wandb_log)
-                
+
                 if split == 'test':
                     logger.log_test_test(to_log)
                 else:
@@ -340,7 +337,7 @@ def learn(
             "entropy_loss": entropy_loss.item(),
         }
         #TODO: trying to add WANDB here
-        
+
         wandb.log(stats)
 
         optimizer.zero_grad()
@@ -387,7 +384,6 @@ def train(flags):  # pylint: disable=too-many-branches, too-many-statements
 
     wandb.init(settings=wandb.Settings(start_method="fork"), project="wordcraft", entity="nlp_group", config=vars(flags))
 
-
     if flags.xpid is None:
         flags.xpid = "torchbeast-%s" % time.strftime("%Y%m%d-%H%M%S")
     plogger = file_writer.FileWriter(
@@ -433,7 +429,7 @@ def train(flags):  # pylint: disable=too-many-branches, too-many-statements
     tester_processes = []
     if flags.test_interval > 0:
         splits = ['test', 'train']
-        for split in splits:        
+        for split in splits:
             tester = ctx.Process(
                 target=test,
                 args=(
@@ -504,7 +500,7 @@ def train(flags):  # pylint: disable=too-many-branches, too-many-statements
     logger.info("# Step\t%s", "\t".join(stat_keys))
 
 
-    
+
 
     step, stats = 0, {}
 
