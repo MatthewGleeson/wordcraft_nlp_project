@@ -68,6 +68,10 @@ def load_kg_model_for_env(flags, env):
         kg_model = ComplEx(env.num_entities, 2, flags.kg_model_embedding_size)
         kg_model_path = os.path.expandvars(os.path.expanduser(flags.kg_model_path))
         kg_model.load_state_dict(torch.load(kg_model_path))
+    if kg_model is None:
+        print("\U0001F62c No KG model! That's awkward...\U0001F62c")
+    else:
+        print("KG model path:", flags.kg_model_path)
     return kg_model
 
 
