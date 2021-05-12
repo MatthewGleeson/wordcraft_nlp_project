@@ -17,7 +17,7 @@ from graph.kbcr.regularizers import N2, N3
 from graph.kbcr.evaluation import evaluate
 
 
-def recipebook2relations(recipe_book, feature_map=None, device=None, store_kge = store_kge):
+def recipebook2relations(recipe_book, feature_map=None, device=None, store_kge = False):
 	"""
 	Takes a recipe book and returns a set of train and test triplets (s, r, o).
 	"""
@@ -69,23 +69,26 @@ def recipebook2relations(recipe_book, feature_map=None, device=None, store_kge =
 	if not device:
 		device = torch.device('cpu')
 
+	#begin code matt wrote
+	#if '--store_for_kge_repo' flag set to 'true', will store the wordcraft data in a format compatible with the kge repository
 	if store_kge:
+		print("Storing data for kge!")
 		#save into 2 different text fiels I think
 		for i in range(2):
 			with open("kge_data/relations.txt", "a") as output:
-				output.write(str(i))
+				output.write(str(i)+ '\n')
 		for (s,p,o) in list(train_relations):
-			s = index2entity(s)
-			o = index2entity(o)
+			s = index2entity[s]
+			o = index2entity[o]
 			allvars = (s,p,o)
 			with open("kge_data/train.txt", "a") as output:
-				output.write("\t".join([str(i) for i in allvars]))
+				output.write("\t".join([str(i) for i in allvars]) + '\n')
 		for (s,p,o) in list(test_relations):
-			s = index2entity(s)
-			o = index2entity(o)
+			s = index2entity[s]
+			o = index2entity[o]
 			allvars = (s,p,o)
 			with open("kge_data/test.txt", "a") as output:
-				output.write("\t".join([str(i) for i in allvars]))
+				output.write("\t".join([str(i) for i in allvars])+ '\n')
 
 	train_relations = torch.tensor(np.array(list(train_relations)), dtype=int).to(device)
 	test_relations = torch.tensor(np.array(list(test_relations)), dtype=int).to(device)
