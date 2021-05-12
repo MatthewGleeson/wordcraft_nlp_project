@@ -83,12 +83,19 @@ def recipebook2relations(recipe_book, feature_map=None, device=None, store_kge =
 			allvars = (s,p,o)
 			with open("kge_data/train.txt", "a") as output:
 				output.write("\t".join([str(i) for i in allvars]) + '\n')
+		num_tests = len(test_relations)
+		curr_tests = 0
 		for (s,p,o) in list(test_relations):
 			s = index2entity[s]
 			o = index2entity[o]
 			allvars = (s,p,o)
-			with open("kge_data/test.txt", "a") as output:
-				output.write("\t".join([str(i) for i in allvars])+ '\n')
+			if curr_tests < num_tests/2:
+				with open("kge_data/test.txt", "a") as output:
+					output.write("\t".join([str(i) for i in allvars])+ '\n')
+					curr_tests+=1
+			else:
+				with open("kge_data/valid.txt", "a") as output:
+					output.write("\t".join([str(i) for i in allvars])+ '\n')
 		for entity in recipe_book.entities:
 			with open("kge_data/entities.txt", "a") as output:
 				output.write(entity + '\n')
