@@ -17,7 +17,7 @@ from graph.kbcr.regularizers import N2, N3
 from graph.kbcr.evaluation import evaluate
 
 
-def recipebook2relations(recipe_book, feature_map=None, device=None):
+def recipebook2relations(recipe_book, feature_map=None, device=None, store_kge = store_kge):
 	"""
 	Takes a recipe book and returns a set of train and test triplets (s, r, o).
 	"""
@@ -25,6 +25,8 @@ def recipebook2relations(recipe_book, feature_map=None, device=None):
 	COMPONENT_OF = 1
 
 	entity2index = recipe_book.entity2index
+	#create reverse lookup table
+	index2entity = {v: k for k, v in entity2index.items()}
 
 	def add_goal_recipe_relations_to_set(goal, recipe, s):
 		if len(recipe.keys()) == 2:
@@ -66,6 +68,24 @@ def recipebook2relations(recipe_book, feature_map=None, device=None):
 
 	if not device:
 		device = torch.device('cpu')
+
+	if store_kge:
+		#save into 2 different text fiels I think
+		for i in range(2):
+			with open("kge_data/relations.txt", "a") as output:
+				output.write(str(i))
+		for (s,p,o) in list(train_relations):
+			s = index2entity(s)
+			o = index2entity(o)
+			allvars = (s,p,o)
+			with open("kge_data/train.txt", "a") as output:
+				output.write("\t".join([str(i) for i in allvars]))
+		for (s,p,o) in list(test_relations):
+			s = index2entity(s)
+			o = index2entity(o)
+			allvars = (s,p,o)
+			with open("kge_data/test.txt", "a") as output:
+				output.write("\t".join([str(i) for i in allvars]))
 
 	train_relations = torch.tensor(np.array(list(train_relations)), dtype=int).to(device)
 	test_relations = torch.tensor(np.array(list(test_relations)), dtype=int).to(device)
@@ -178,6 +198,8 @@ def get_cmd_args():
 	# Logging
 	parser.add_argument('--verbose', '-v', action='store_true')
 
+	parser.add_argument('--store_for_kge_repo', action='store', type=str, default='false', choices=['true', 'false'])
+
 	return parser.parse_args()
 
 
@@ -207,7 +229,11 @@ def main():
 	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 	# Set up training data
-	train_relations, test_relations = recipebook2relations(recipe_book, device=device)
+	if args.store_for_kge_repo=='true':
+		store_kge = True
+	else:
+		store_kge = False
+	train_relations, test_relations = recipebook2relations(recipe_book, device=device, store_kge = store_kge)
 	if np.isclose(args.train_ratio, 1.0):
 		test_relations = train_relations
 	all_relations = torch.cat((train_relations, test_relations), dim=0).cpu()

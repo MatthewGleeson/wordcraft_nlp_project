@@ -64,6 +64,7 @@ def model_for_env(flags, env, kg_model=None):
 
 def load_kg_model_for_env(flags, env):
     kg_model = None
+    #TODO: I think this is where to add the kg using a flag setting
     if flags.kg_model_path is not None and hasattr(env, 'num_entities'):
         kg_model = ComplEx(env.num_entities, 2, flags.kg_model_embedding_size)
         kg_model_path = os.path.expandvars(os.path.expanduser(flags.kg_model_path))
