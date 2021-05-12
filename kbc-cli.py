@@ -89,6 +89,9 @@ def recipebook2relations(recipe_book, feature_map=None, device=None, store_kge =
 			allvars = (s,p,o)
 			with open("kge_data/test.txt", "a") as output:
 				output.write("\t".join([str(i) for i in allvars])+ '\n')
+		for entity in recipe_book.entities:
+			with open("kge_data/entities.txt", "a") as output:
+				output.write(entity + '\n')
 
 	train_relations = torch.tensor(np.array(list(train_relations)), dtype=int).to(device)
 	test_relations = torch.tensor(np.array(list(test_relations)), dtype=int).to(device)
