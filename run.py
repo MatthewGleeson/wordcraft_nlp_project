@@ -64,6 +64,8 @@ def get_cmd_args():
                         help="Whether to modulate policy with goal score from KBC model.")
     parser.add_argument("--use_kg_selection_score", action="store_true",
                         help="Whether to modulate policy logits with selection score from KBC model.")
+    parser.add_argument("--use_pretrained_kg_model", action="store_true",
+                        help="Whether to use a pretrained KGE model.")
 
     # Env settings
     parser.add_argument("--env", type=str, default="wordcraft-multistep-goal-v0",

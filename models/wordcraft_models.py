@@ -44,9 +44,11 @@ class SelfAttentionACNet(DeviceAwareModule):
 		use_kg_goal_score=False,
 		use_kg_selection_score=False,
 		use_kg_only=False,
+		use_pretrained_kg_model=False, # Added boolean attrbiute to constructor 28 May 2021
 		rb=None):
 		super().__init__()
-
+		
+		self.use_pretrained_kg_model=use_pretrained_kg_model # Set boolean attrbiute 28 May 2021
 		self.rb = rb
 
 		table_size = observation_space['table_index'].shape[-1]
@@ -125,7 +127,10 @@ class SelfAttentionACNet(DeviceAwareModule):
 			s[~s_mask] = 0
 			s = s.flatten(0, 1)
 
-			scores = self.kg_model.score(r, s, o).view(subj_idx_list_shape)
+			if self.use_pretrained_kg_model: # Added if statement for getting scores depending on whether model is pretrained
+				scores = self.kg_model.score_spo(s, r, o).view(subj_idx_list_shape)
+			else:
+				scores = self.kg_model.score(r, s, o).view(subj_idx_list_shape)
 
 			scores[~o_mask,:] = s_mask.float()[~o_mask,:]
 			scores = scores + (s_mask.float() + 1e-45).log()
