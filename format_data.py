@@ -81,31 +81,36 @@ def main():
 	for key, value in wordcraft_rel_id_to_word.items():
 	    relation_ids_full.append(''.join(str(key) + '\t' + value + '\n'))
 
+	id2word = []
+	for key, value in wordcraft_ent_id_to_word.items():
+		id2word.append(''.join(str(key) + '\t' + value + '\n'))
+
 	train_full_f = open('train.del', 'w')
-	entity_ids_full_f = open('entity_ids.del', 'w')
-	entity_strings_full_f = open('entity_strings.del', 'w')
+	#entity_ids_full_f = open('entity_ids.del', 'w')
+	#entity_strings_full_f = open('entity_strings.del', 'w')
 	relation_ids_full_f = open('relation_ids.del', 'w')
+	id_to_word = open('entity_ids.del', 'w')
+
+	for line in id2word:
+		id_to_word.write(line)
 
 	for line in triples:
 		train_full_f.write(line)
 
-	for line in entity_strings_full:
-		entity_ids_full_f.write(line)
+	#for line in entity_strings_full:
+		#entity_ids_full_f.write(line)
 
-	for line in entity_ids_full:
-		entity_strings_full_f.write(line)
-
-	#train_full_f.writelines(triples)
-	#entity_strings_full_f.writelines(entity_strings_full)
-	#entity_ids_full_f.writelines(entity_ids_full)
+	#for line in entity_ids_full:
+		#entity_strings_full_f.write(line)
 
 	for line in relation_ids_full:
 	    relation_ids_full_f.write(line)
 
 	train_full_f.close()
-	entity_ids_full_f.close()
-	entity_strings_full_f.close()
+	#entity_ids_full_f.close()
+	#entity_strings_full_f.close()
 	relation_ids_full_f.close()
+	id_to_word.close()
 
 if __name__ == '__main__':
 	main()
