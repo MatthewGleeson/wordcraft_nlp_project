@@ -68,7 +68,8 @@ def load_kg_model_for_env(flags, env):
     kg_model = None
     #TODO: I think this is where to add the kg using a flag setting
     if flags.use_pretrained_kg_model: # Added if branch for option to load pretrained KGE model 28 May 2021
-        kg_model = util.load_checkpoint_model(flags.kg_model_path)
+        checkpoint_fpath = os.path.expandvars(os.path.expanduser(flags.kg_model_path))
+        kg_model = util.load_checkpoint_model(checkpoint_fpath)
     elif flags.kg_model_path is not None and hasattr(env, 'num_entities'):
         kg_model = ComplEx(env.num_entities, 2, flags.kg_model_embedding_size)
         kg_model_path = os.path.expandvars(os.path.expanduser(flags.kg_model_path))
