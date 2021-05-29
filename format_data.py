@@ -9,6 +9,7 @@ from utils.word2feature import FeatureMap
 import json
 import string
 import random
+import numpy as np
 
 def main():
 
@@ -85,7 +86,16 @@ def main():
 	for key, value in wordcraft_ent_id_to_word.items():
 		id2word.append(''.join(str(key) + '\t' + value + '\n'))
 
-	train_full_f = open('train.del', 'w')
+	perm = np.random.permutation(len(triples))
+	train_end = int(.8 * len(triples))
+	validate_end = int(.1 * len(triples)) + train_end
+	train = list(np.array(triples)[perm[:train_end]])
+	validate = list(np.array(triples)[perm[train_end:validate_end]])
+	test = list(np.array(triples)[perm[validate_end:]])
+
+	train_f = open('train.del', 'w')
+	val_f = open('val.del', 'w')
+	test_f = open('test.del', 'w')
 	#entity_ids_full_f = open('entity_ids.del', 'w')
 	#entity_strings_full_f = open('entity_strings.del', 'w')
 	relation_ids_full_f = open('relation_ids.del', 'w')
@@ -94,8 +104,14 @@ def main():
 	for line in id2word:
 		id_to_word.write(line)
 
-	for line in triples:
-		train_full_f.write(line)
+	for line in train:
+		train_f.write(line)
+
+	for line in validate:
+		val_f.write(line)
+
+	for line in test:
+		test_f.write(line)
 
 	#for line in entity_strings_full:
 		#entity_ids_full_f.write(line)
@@ -106,11 +122,13 @@ def main():
 	for line in relation_ids_full:
 	    relation_ids_full_f.write(line)
 
-	train_full_f.close()
+	train_f.close()
 	#entity_ids_full_f.close()
 	#entity_strings_full_f.close()
 	relation_ids_full_f.close()
 	id_to_word.close()
+	val_f.close()
+	test_f.close()
 
 if __name__ == '__main__':
 	main()
