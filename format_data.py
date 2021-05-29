@@ -56,7 +56,9 @@ def main():
 	for i in recipe['entities']:
 	    for j in recipe['entities'][i]['recipes']:
 	        combines.append(j)
+			combines.append([j[1], j[0]])
 	        combines_num.append([recipe['entities'][combines[-1][0]]['id'], 0, recipe['entities'][combines[-1][1]]['id']])
+			combines_num.append([recipe['entities'][combines[-1][1]]['id'], 0, recipe['entities'][combines[-1][0]]['id']])
 	        if [j[0], i] not in components:
 	            components.append([j[0], i])
 	            components_num.append([recipe['entities'][components[-1][0]]['id'], 1, recipe['entities'][components[-1][1]]['id']])
