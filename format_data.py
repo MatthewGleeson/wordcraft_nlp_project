@@ -10,6 +10,7 @@ import json
 import string
 import random
 import numpy as np
+import collections
 
 def main():
 
@@ -18,35 +19,40 @@ def main():
 	recipe_ids = [recipe['entities'][i]['id'] for i in recipe['entities']]
 	f.close()
 
+	entities = tuple(recipe['entities'].keys())
+	entity2index = {e : i for i, e in enumerate(entities)}
+	index2entity = {i : e for i, e in enumerate(entities)}
+	#entity2recipes = collections.defaultdict(list)
+
 	wordcraft_rel_word_to_id = {'COMBINES_WITH' : 0, 'COMPONENT_OF' : 1}
 	wordcraft_rel_id_to_word = {0 : 'COMBINES_WITH', 1 : 'COMPONENT_OF'}
 
-	wordcraft_ent_word_to_id = {}
-	wordcraft_ent_id_to_word = {}
+	#wordcraft_ent_word_to_id = {}
+	#wordcraft_ent_id_to_word = {}
 
-	for i in recipe['entities']:
-	    wordcraft_ent_word_to_id[i] = recipe['entities'][i]['id']
-	    wordcraft_ent_id_to_word[recipe['entities'][i]['id']] = i
+	#for i in recipe['entities']:
+	#    wordcraft_ent_word_to_id[i] = recipe['entities'][i]['id']
+	#    wordcraft_ent_id_to_word[recipe['entities'][i]['id']] = i
 
-	chars = string.ascii_lowercase + string.digits
+	#chars = string.ascii_lowercase + string.digits
 
-	wordcraft_ent_word_to_code = {}
-	wordcraft_ent_code_to_word = {}
-	wordcraft_ent_id_to_code = {}
-	wordcraft_ent_code_to_id = {}
+	#wordcraft_ent_word_to_code = {}
+	#wordcraft_ent_code_to_word = {}
+	#wordcraft_ent_id_to_code = {}
+	#wordcraft_ent_code_to_id = {}
 
-	strings = set()
+	#strings = set()
 
-	for i in recipe_ids:
-	    s = "/m/"
-	    prop = s + ''.join(random.choice(chars) for i in range(5))
-	    while prop in strings:
-	        prop = prop + random.choice(chars)
-	    strings.add(prop)
-	    wordcraft_ent_word_to_code[wordcraft_ent_id_to_word[i]] = prop
-	    wordcraft_ent_code_to_word[prop] = wordcraft_ent_id_to_word[i]
-	    wordcraft_ent_id_to_code[i] = prop
-	    wordcraft_ent_code_to_id[prop] = i
+	#for i in recipe_ids:
+	    #s = "/m/"
+	    #prop = s + ''.join(random.choice(chars) for i in range(5))
+	    #while prop in strings:
+	    #    prop = prop + random.choice(chars)
+	    #strings.add(prop)
+	    #wordcraft_ent_word_to_code[wordcraft_ent_id_to_word[i]] = prop
+	    #wordcraft_ent_code_to_word[prop] = wordcraft_ent_id_to_word[i]
+	    #wordcraft_ent_id_to_code[i] = prop
+	    #wordcraft_ent_code_to_id[prop] = i
 
 	combines = []
 	components = []
@@ -54,17 +60,17 @@ def main():
 	components_num = []
 
 	for i in recipe['entities']:
-	    for j in recipe['entities'][i]['recipes']:
-	        combines.append(j)
+		for j in recipe['entities'][i]['recipes']:
+			combines.append(j)
 			combines.append([j[1], j[0]])
-	        combines_num.append([recipe['entities'][combines[-1][0]]['id'], 0, recipe['entities'][combines[-1][1]]['id']])
+			combines_num.append([recipe['entities'][combines[-1][0]]['id'], 0, recipe['entities'][combines[-1][1]]['id']])
 			combines_num.append([recipe['entities'][combines[-1][1]]['id'], 0, recipe['entities'][combines[-1][0]]['id']])
-	        if [j[0], i] not in components:
-	            components.append([j[0], i])
-	            components_num.append([recipe['entities'][components[-1][0]]['id'], 1, recipe['entities'][components[-1][1]]['id']])
-	        if [j[1], i] not in components:
-	            components.append([j[1], i])
-	            components_num.append([recipe['entities'][components[-1][0]]['id'], 0, recipe['entities'][components[-1][1]]['id']])
+			if [j[0], i] not in components:
+				components.append([j[0], i])
+				components_num.append([recipe['entities'][components[-1][0]]['id'], 1, recipe['entities'][components[-1][1]]['id']])
+			if [j[1], i] not in components:
+				components.append([j[1], i])
+				components_num.append([recipe['entities'][components[-1][0]]['id'], 0, recipe['entities'][components[-1][1]]['id']])
 
 	triples = []
 	for i in components_num:
@@ -72,20 +78,21 @@ def main():
 	for i in combines_num:
 	    triples.append(''.join(str(j) + '\t' for j in i)[:-1] + '\n')
 
-	entity_ids_full = []
-	for key, value in wordcraft_ent_id_to_code.items():
-	    entity_ids_full.append(''.join(str(key) + '\t' + value + '\n'))
+	#entity_ids_full = []
+	#for key, value in wordcraft_ent_id_to_code.items():
+	    #entity_ids_full.append(''.join(str(key) + '\t' + value + '\n'))
 
-	entity_strings_full = []
-	for key, value in wordcraft_ent_code_to_word.items():
-	    entity_strings_full.append(''.join(str(key) + '\t' + value + '\n'))
+	#entity_strings_full = []
+	#for key, value in wordcraft_ent_code_to_word.items():
+	    #entity_strings_full.append(''.join(str(key) + '\t' + value + '\n'))
 
 	relation_ids_full = []
 	for key, value in wordcraft_rel_id_to_word.items():
 	    relation_ids_full.append(''.join(str(key) + '\t' + value + '\n'))
 
 	id2word = []
-	for key, value in wordcraft_ent_id_to_word.items():
+	#for key, value in wordcraft_ent_id_to_word.items():
+	for key, value in index2entity.items():
 		id2word.append(''.join(str(key) + '\t' + value + '\n'))
 
 	perm = np.random.permutation(len(triples))
