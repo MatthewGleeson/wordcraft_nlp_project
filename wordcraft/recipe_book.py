@@ -44,8 +44,8 @@ class Task:
 
 
 class RecipeBook:
-    def __init__(self, 
-        data_path='datasets/alchemy2.json', max_depth=1, split=None, train_ratio=1.0, seed=None):
+    def __init__(self,
+        data_path='datasets/alchemy2.json', max_depth=1, split=None, train_ratio=1.0, seed=None, prune=False):
         self.test_mode = False
         self.train_ratio = train_ratio
         self.set_seed(seed)
@@ -62,6 +62,11 @@ class RecipeBook:
                 if e not in r:
                     self.entity2recipes[e].append(Recipe(r))
         self.entity2recipes = dict(self.entity2recipes)
+
+        if prune == True:
+            while self._num_triples > 7000:
+                idx = random.sample(range(len(self.entities)), 1)[0]
+                self.remove_word(self.entities[idx])
 
         self.max_recipe_size = 0
         self.recipe2entity = collections.defaultdict(str)
@@ -91,6 +96,27 @@ class RecipeBook:
         f.close()
 
         return jsondata
+
+    def _num_triples(self):
+        ret = 0
+        for key in self.entity2recipes.keys():
+            comp_of = set()
+            for recipe in self.entity2recipes[key]:
+                ret += 2
+                for k in recipe:
+                    if k not in comp_of:
+                        comp_of.add(k)
+                        ret += 1
+        return ret
+
+    def remove_word(self, word):
+        for key in self.entity2recipes.keys():
+            proposal = self.entity2recipes[key]
+            for i, recipe in enumerate(self.entity2recipes[key]):
+                if word in self.entity2recipes[key][i]:
+                    proposal.remove(recipe)
+            self.entity2recipes[key] = proposal
+        self.entity2recipes.pop(word, None)
 
     def set_seed(self, seed):
         self.np_random, self.seed = seeding.np_random(seed)
@@ -182,7 +208,7 @@ class RecipeBook:
                     expanded_entities = [e for e in recipe if e not in next_base_entities]
                     is_cycle = False
                     for e in recipe:
-                        if e in intermediate_entities or e == goal: 
+                        if e in intermediate_entities or e == goal:
                             cprint(DEBUG,f'------Cycle detected, skipping recipe {recipe}')
                             is_cycle = True
                             break
@@ -195,7 +221,7 @@ class RecipeBook:
                     # Add task
                     relevant_recipes.append(recipe)
                     task = Task(goal, next_base_entities, intermediate_entities, relevant_recipes[:])
-                    if task not in self.depth2task[cur_depth]: 
+                    if task not in self.depth2task[cur_depth]:
                         self.depth2task[cur_depth].add(task)
                         cprint(DEBUG,f'------Adding task {task}')
 
@@ -230,7 +256,7 @@ class RecipeBook:
             for e in recipe:
                 entities_cnt[e] += 1
 
-        unnormalized = np.array(list(entities_cnt.values())) + 1 # Even terminal entities have > 0 chance of being sampled 
+        unnormalized = np.array(list(entities_cnt.values())) + 1 # Even terminal entities have > 0 chance of being sampled
         self.entity_dist = unnormalized/unnormalized.sum()
 
     def _init_data_split(self, split, train_ratio):
@@ -346,4 +372,3 @@ class RecipeBook:
         for recipe in aux_recipes:
             self.recipes_train.add(recipe)
             self.recipes_test.remove(recipe)
-
