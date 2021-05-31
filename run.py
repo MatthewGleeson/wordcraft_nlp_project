@@ -1,5 +1,6 @@
 import logging
 import argparse
+from distutils.util import strtobool
 
 from algos import impala
 
@@ -64,6 +65,8 @@ def get_cmd_args():
                         help="Whether to modulate policy with goal score from KBC model.")
     parser.add_argument("--use_kg_selection_score", action="store_true",
                         help="Whether to modulate policy logits with selection score from KBC model.")
+    parser.add_argument("--use_pretrained_kg_model", action="store_true",
+                        help="Whether to use a pretrained KGE model.")
 
     # Env settings
     parser.add_argument("--env", type=str, default="wordcraft-multistep-goal-v0",
@@ -93,6 +96,8 @@ def get_cmd_args():
                         help="How many distractors to include per task.")
     parser.add_argument("--subgoal_rewards", action="store_true",
                         help="Provide subgoal rewards during training.")
+    parser.add_argument("--prune", type=lambda x: bool(strtobool(x)), default=False)
+    parser.add_argument("--pruned_complex_model", type=lambda x: bool(strtobool(x)), default=False)
 
 
     # Loss settings.

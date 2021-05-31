@@ -65,8 +65,8 @@ class RecipeBook:
 
         	original_entities = tuple(original_recipe['entities'].keys())
 
-        	self.entity2index = {e : i for i, e in enumerate(original_entities) if e in self.entities}
-        	self.index2entity = {i : e for i, e in enumerate(original_entities) if e in self.entities}
+        	self.entity2index = {e : i for i, e in enumerate(original_entities) if e in entities}
+        	self.index2entity = {i : e for i, e in enumerate(original_entities) if e in entities}
         	self.entity2recipes = collections.defaultdict(list)
 
         else:
@@ -425,3 +425,4 @@ class RecipeBook:
         for recipe in aux_recipes:
             self.recipes_train.add(recipe)
             self.recipes_test.remove(recipe)
+

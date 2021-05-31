@@ -28,9 +28,9 @@ def main():
 	entity2recipes = collections.defaultdict(list)
 
 	for e in entities:
-		for r in recipe['entities'][e]['recipes']:
-			if e not in r:
-				entity2recipes[e].append(Recipe(r))
+	    for r in recipe['entities'][e]['recipes']:
+	        if e not in r:
+	            entity2recipes[e].append(Recipe(r))
 	entity2recipes = dict(entity2recipes)
 
 	combines = []
@@ -65,6 +65,8 @@ def main():
 	for i in combines_num:
 		triples.append(''.join(str(j) + '\t' for j in i)[:-1] + '\n')
 
+	print(triples)
+
 	relation_ids_full = []
 	for key, value in wordcraft_rel_id_to_word.items():
 		relation_ids_full.append(''.join(str(key) + '\t' + value + '\n'))
@@ -73,6 +75,8 @@ def main():
 	#for key, value in wordcraft_ent_id_to_word.items():
 	for key, value in index2entity.items():
 		id2word.append(''.join(str(key) + '\t' + value + '\n'))
+
+	print(id2word)
 
 	perm = np.random.permutation(len(triples))
 	train_end = int(.8 * len(triples))

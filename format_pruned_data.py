@@ -92,13 +92,13 @@ def main():
 	validate = list(np.array(triples)[perm[train_end:validate_end]])
 	test = list(np.array(triples)[perm[validate_end:]])
 
-	train_f = open('train.del', 'w')
-	val_f = open('val.del', 'w')
-	test_f = open('test.del', 'w')
+	train_f = open('pruned_train.del', 'w')
+	val_f = open('pruned_val.del', 'w')
+	test_f = open('pruned_test.del', 'w')
 	#entity_ids_full_f = open('entity_ids.del', 'w')
 	#entity_strings_full_f = open('entity_strings.del', 'w')
-	relation_ids_full_f = open('relation_ids.del', 'w')
-	id_to_word = open('entity_ids.del', 'w')
+	relation_ids_full_f = open('pruned_relation_ids.del', 'w')
+	id_to_word = open('pruned_entity_ids.del', 'w')
 
 	for line in id2word:
 		id_to_word.write(line)

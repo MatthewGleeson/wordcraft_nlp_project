@@ -21,6 +21,7 @@ from core import prof
 from core import vtrace
 
 from utils import seed as utils_seed
+from utils import util # Additioanl import 28 May 2021
 from models import RandomAgent, SelfAttentionACNet, SimpleACNet
 from graph.kbcr import ComplEx
 import wandb
@@ -49,6 +50,7 @@ def model_for_env(flags, env, kg_model=None):
                 use_kg_goal_score=flags.use_kg_goal_score,
                 use_kg_selection_score=flags.use_kg_selection_score,
                 use_kg_only=flags.use_kg_only,
+                use_pretrained_kg_model=flags.use_pretrained_kg_model, # Set additional boolean attribute on model 28 May 2021
                 rb=env.recipe_book)
         elif 'mlp' in flags.arch:
             model = SimpleACNet(
@@ -56,16 +58,19 @@ def model_for_env(flags, env, kg_model=None):
                 arch=flags.arch,
                 hidden_size=flags.hidden_size)
         else:
-            raise ValueError(f'Unsupported arch {arch}.')
+            raise ValueError
     else:
-        raise ValueError(f'Unsupported env {env}.')
+        raise ValueError
     return model
 
 
 def load_kg_model_for_env(flags, env):
     kg_model = None
     #TODO: I think this is where to add the kg using a flag setting
-    if flags.kg_model_path is not None and hasattr(env, 'num_entities'):
+    if flags.use_pretrained_kg_model: # Added if branch for option to load pretrained KGE model 28 May 2021
+        checkpoint_fpath = os.path.expandvars(os.path.expanduser(flags.kg_model_path))
+        kg_model = util.load_checkpoint_model(checkpoint_fpath)
+    elif flags.kg_model_path is not None and hasattr(env, 'num_entities'):
         kg_model = ComplEx(env.num_entities, 2, flags.kg_model_embedding_size)
         kg_model_path = os.path.expandvars(os.path.expanduser(flags.kg_model_path))
         kg_model.load_state_dict(torch.load(kg_model_path))
