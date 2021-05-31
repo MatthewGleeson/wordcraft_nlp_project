@@ -46,7 +46,7 @@ class Task:
 class RecipeBook:
     def __init__(self, 
         data_path='datasets/alchemy2.json', max_depth=1, split=None, train_ratio=1.0, seed=None):
-	if prune:
+        if prune:
             data_path = 'datasets/alchemy2pruned.json'
         self.test_mode = False
         self.train_ratio = train_ratio
@@ -69,7 +69,7 @@ class RecipeBook:
             self.entity2index = {e:i for i,e in enumerate(self.entities)}
             self.index2entity = {i : e for i, e in enumerate(self.entities)}
             self.entity2recipes = collections.defaultdict(list)
-	
+
         for e in self.entities:
             for r in self._rawdata['entities'][e]['recipes']:
                 if e not in r:
