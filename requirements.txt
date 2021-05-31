@@ -3,4 +3,3 @@ gym>=0.9.6
 spacy>=2.2
 wandb
 torch==1.7.1
-git+git://github.com/MatthewGleeson/kge@master
