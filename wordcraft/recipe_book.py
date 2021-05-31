@@ -46,6 +46,8 @@ class Task:
 class RecipeBook:
     def __init__(self,
         data_path='datasets/alchemy2.json', max_depth=1, split=None, train_ratio=1.0, seed=None, prune=False):
+        if prune:
+            data_path = 'datasets/alchemy2pruned.json'
         self.test_mode = False
         self.train_ratio = train_ratio
         self.set_seed(seed)
@@ -54,8 +56,23 @@ class RecipeBook:
         self.max_depth = max_depth
 
         self.entities = tuple(self._rawdata['entities'].keys())
-        self.entity2index = {e:i for i,e in enumerate(self.entities)}
-        self.entity2recipes = collections.defaultdict(list)
+
+        if prune:
+            original_path ='datasets/alchemy2.json'
+        	f = open(original_path)
+        	original_recipe = json.load(f)
+        	f.close()
+
+        	original_entities = tuple(original_recipe['entities'].keys())
+
+        	self.entity2index = {e : i for i, e in enumerate(original_entities) if e in entities}
+        	self.index2entity = {i : e for i, e in enumerate(original_entities) if e in entities}
+        	self.entity2recipes = collections.defaultdict(list)
+
+        else:
+            self.entity2index = {e:i for i,e in enumerate(self.entities)}
+            self.index2entity = {i : e for i, e in enumerate(self.entities)}
+            self.entity2recipes = collections.defaultdict(list)
 
         for e in self.entities:
             for r in self._rawdata['entities'][e]['recipes']:
@@ -63,10 +80,18 @@ class RecipeBook:
                     self.entity2recipes[e].append(Recipe(r))
         self.entity2recipes = dict(self.entity2recipes)
 
-        if prune == True:
-            while self._num_triples > 7000:
-                idx = random.sample(range(len(self.entities)), 1)[0]
-                self.remove_word(self.entities[idx])
+        self.root_entities = set([e for e in self.entities if e not in self.entity2recipes])
+
+        #if prune == True:
+            #while self._num_triples() > 7000:
+                #idx = random.sample(range(len(self.entities)), 1)[0]
+                #if self.entities[idx] not in self.root_entities:
+                    #self.remove_word(self.entities[idx])
+
+            # Save pruned json
+            #new_dict = self.construct_dict_from_e2r()
+
+            #self.entities = tuple(new_dict['entities'].keys())
 
         self.max_recipe_size = 0
         self.recipe2entity = collections.defaultdict(str)
@@ -74,8 +99,6 @@ class RecipeBook:
             for r in recipes:
                 self.recipe2entity[r] = entity
                 self.max_recipe_size = max(len(r), self.max_recipe_size)
-
-        self.root_entities = set([e for e in self.entities if e not in self.entity2recipes])
 
         self.init_neighbors_combineswith()
         self.terminal_entities = set([e for e in self.entities if e not in self.neighbors_combineswith])
@@ -97,6 +120,31 @@ class RecipeBook:
 
         return jsondata
 
+    def construct_dict_from_e2r(self):
+        e2r = self.entity2recipes
+        d = {}
+        for key in e2r:
+            sub = {}
+            sub['id'] = self.entity2index[key]
+            l = []
+            for recipe in e2r[key]:
+                ks = list(recipe.keys())
+                if len(ks) > 1:
+                    l.append(ks)
+                else:
+                    l.append([ks[0], ks[0]])
+            sub['recipes'] = l
+            d[key] = sub
+        for key in self.root_entities:
+            d[key] = {'id': self.entity2index[key], 'recipes': []}
+        outer = {}
+        outer['entities'] = d
+
+        with open('datasets/alchemy2pruned.json', 'w') as fp:
+            json.dump(outer, fp)
+
+        return outer
+
     def _num_triples(self):
         ret = 0
         for key in self.entity2recipes.keys():
@@ -112,9 +160,13 @@ class RecipeBook:
     def remove_word(self, word):
         for key in self.entity2recipes.keys():
             proposal = self.entity2recipes[key]
+            to_remove = []
             for i, recipe in enumerate(self.entity2recipes[key]):
                 if word in self.entity2recipes[key][i]:
-                    proposal.remove(recipe)
+                    #print(f"Found {word} for {key}: {recipe}")
+                    to_remove.append(recipe)
+            for recipe in to_remove:
+                proposal.remove(recipe)
             self.entity2recipes[key] = proposal
         self.entity2recipes.pop(word, None)
 
@@ -366,8 +418,9 @@ class RecipeBook:
 
         aux_recipes = set()
         for e in missing_entities:
-            aux_recipe = self._random_choice(list(entity2recipes_test[e]))
-            aux_recipes.add(aux_recipe)
+            if len(list(entity2recipes_test[e])) > 0:
+                aux_recipe = self._random_choice(list(entity2recipes_test[e]))
+                aux_recipes.add(aux_recipe)
 
         for recipe in aux_recipes:
             self.recipes_train.add(recipe)
