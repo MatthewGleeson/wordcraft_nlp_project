@@ -60,7 +60,7 @@ class RecipeBook:
             f = open(original_path)
             original_recipe = json.load(f)
             f.close()
-
+            
             original_entities = tuple(original_recipe['entities'].keys())
 
             self.entity2index = {e : i for i, e in enumerate(original_entities) if e in entities}
