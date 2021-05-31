@@ -60,7 +60,7 @@ def model_for_env(flags, env, kg_model=None):
         else:
             raise ValueError
     else:
-        raise ValueError(f'Unsupported env {env}')
+        raise ValueError
     return model
 
 
