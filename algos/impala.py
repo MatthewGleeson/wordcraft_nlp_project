@@ -58,7 +58,7 @@ def model_for_env(flags, env, kg_model=None):
                 arch=flags.arch,
                 hidden_size=flags.hidden_size)
         else:
-            raise ValueError(f'Unsupported arch {arch}')
+            raise ValueError
     else:
         raise ValueError(f'Unsupported env {env}')
     return model
