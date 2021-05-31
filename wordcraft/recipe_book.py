@@ -45,7 +45,9 @@ class Task:
 
 class RecipeBook:
     def __init__(self, 
-        data_path='datasets/alchemy2.json', max_depth=1, split=None, train_ratio=1.0, seed=None):
+        data_path='datasets/alchemy2.json', max_depth=1, split=None, train_ratio=1.0, seed=None, prune=False):
+        if prune:
+            data_path = 'datasets/alchemy2pruned.json'
         self.test_mode = False
         self.train_ratio = train_ratio
         self.set_seed(seed)
@@ -54,8 +56,23 @@ class RecipeBook:
         self.max_depth = max_depth
 
         self.entities = tuple(self._rawdata['entities'].keys())
-        self.entity2index = {e:i for i,e in enumerate(self.entities)}
-        self.entity2recipes = collections.defaultdict(list)
+
+        if prune:
+            original_path ='datasets/alchemy2.json'
+        	f = open(original_path)
+        	original_recipe = json.load(f)
+        	f.close()
+
+        	original_entities = tuple(original_recipe['entities'].keys())
+
+        	self.entity2index = {e : i for i, e in enumerate(original_entities) if e in self.entities}
+        	self.index2entity = {i : e for i, e in enumerate(original_entities) if e in self.entities}
+        	self.entity2recipes = collections.defaultdict(list)
+
+        else:
+            self.entity2index = {e:i for i,e in enumerate(self.entities)}
+            self.index2entity = {i : e for i, e in enumerate(self.entities)}
+            self.entity2recipes = collections.defaultdict(list)
 
         for e in self.entities:
             for r in self._rawdata['entities'][e]['recipes']:
