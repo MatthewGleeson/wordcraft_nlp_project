@@ -95,6 +95,8 @@ def get_cmd_args():
                         help="How many distractors to include per task.")
     parser.add_argument("--subgoal_rewards", action="store_true",
                         help="Provide subgoal rewards during training.")
+    parser.add_argument("--prune", type=lambda x: bool(strtobool(x)), default=False)
+    parser.add_argument("--pruned_complex_model", type=lambda x: bool(strtobool(x)), default=False)
 
 
     # Loss settings.
