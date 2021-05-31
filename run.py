@@ -1,5 +1,6 @@
 import logging
 import argparse
+from distutils.util import strtobool
 
 from algos import impala
 
